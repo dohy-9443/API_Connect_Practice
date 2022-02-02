@@ -1,25 +1,55 @@
-import logo from './logo.svg';
+import react, {useState, useEffect} from 'react';
 import './App.css';
 
-function App() {
+import Api from './Api';
+
+const App = () => {
+
+  const [musicList, setMusicList] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const getMusic = () => {
+    Api.connectFetchController(
+      `karaoke.json`, // path
+      "GET", // method
+      null, // body
+      (res) => { // callback
+        setMusicList(res);
+        setLoading(false)
+      },
+      (err) => {console.error(err); } // errorCallBack    
+    );
+
+  }
+
+  useEffect(() => {
+    getMusic()
+  }, [])
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <>
+      {/* <Loading isLoading={loading}>로딩중...</Loading> */}
+      {
+        !loading && musicList.length > 0
+        ? musicList.map((item, index) => {
+          const {singer, title} = item || {};
+          // item || {}  구조 분해 할당을 할 때 ? 대신 사용할 수 있는거
+          // item?.singer 
+          return (
+            <>
+              <h2 key={index}>[{singer}], ({title})</h2>
+            </>
+          )
+        })
+        : 
+        !loading && musicList.length === 0 
+        ? <p>없음</p>
+        : <p>로딩중</p>
+      }
+    </>
   );
 }
 
 export default App;
+
+
